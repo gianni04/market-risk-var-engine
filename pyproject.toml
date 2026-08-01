@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-risk-var-engine"
+version = "1.0.0"
+description = "Moteur de risque de marché : VaR/ES multi-méthodes, backtesting réglementaire, stress tests, risque ex-ante et estimation de covariance robuste."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { text = "MIT" }
+authors = [{ name = "Gianni Pilotti" }]
+dependencies = [
+    "numpy==1.26.3",
+    "pandas==3.0.5",
+    "scipy==1.15.3",
+    "matplotlib==3.10.9",
+    "statsmodels==0.14.6",
+    "scikit-learn==1.9.0",
+    "openpyxl",
+    "xlsxwriter",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+live-data = ["yfinance"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
