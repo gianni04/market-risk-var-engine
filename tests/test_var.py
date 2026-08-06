@@ -23,8 +23,6 @@ class TestParametricVarAnalytical:
         assert computed == pytest.approx(expected, rel=1e-6, abs=1e-8)
 
     def test_close_to_true_population_var(self) -> None:
-        # Rendements gaussiens à moyenne/vol connues : la VaR estimée doit
-        # être proche de la vraie VaR théorique de la population.
         rng = np.random.default_rng(7)
         mu_true, sigma_true = 0.0005, 0.015
         r = rng.normal(mu_true, sigma_true, 500_000)
@@ -49,7 +47,6 @@ class TestMonteCarloConvergence:
         mc_result = V.monte_carlo_var(
             returns_df, weights, confidence=0.99, n_sims=200_000, dist="normal", seed=99
         )
-        # Tolérance relative généreuse : erreur d'échantillonnage Monte Carlo.
         assert abs(mc_result.var - param_var) / param_var < 0.05
 
 
@@ -104,9 +101,6 @@ class TestHistoricalVarWeighted:
         assert np.isfinite(var)
 
     def test_weighted_var_reacts_more_to_recent_vol(self) -> None:
-        # Série avec un régime calme suivi d'un régime volatil récent : la
-        # VaR pondérée doit être plus élevée que la VaR historique simple,
-        # qui traite également le passé calme et le présent volatil.
         rng = np.random.default_rng(3)
         calm = rng.normal(0, 0.005, 1000)
         volatile = rng.normal(0, 0.03, 200)

@@ -16,7 +16,7 @@ class TestHistoricalAndEwma:
         calm = np.full(300, 0.0)
         rng = np.random.default_rng(0)
         calm = rng.normal(0, 0.005, 300)
-        shocked = np.concatenate([calm, [0.10]])  # choc violent au dernier jour
+        shocked = np.concatenate([calm, [0.10]])
         r = np.concatenate([shocked, np.zeros(5)])
         vol = VOL.ewma_volatility(r, lam=0.94, annualize=False)
         assert vol.iloc[-1] > vol.iloc[10]
@@ -31,9 +31,6 @@ class TestGarch11Fit:
         assert fit.omega > 0
 
     def test_recovers_reasonable_persistence(self, synthetic_returns) -> None:
-        # Les données synthétiques sont générées avec alpha=0.08, beta=0.90
-        # (persistance vraie 0.98) : l'estimateur doit être dans un
-        # voisinage raisonnable de cette persistance sur 1500 jours.
         fit = VOL.fit_garch11(synthetic_returns["Actions_EU"])
         assert 0.90 < fit.persistence < 0.999
 
@@ -48,8 +45,6 @@ class TestGarch11Fit:
 class TestGarchForecast:
     def test_forecast_converges_to_long_run_variance(self, synthetic_returns) -> None:
         fit = VOL.fit_garch11(synthetic_returns["Actions_EU"])
-        # Horizon très long pour laisser (alpha+beta)^(h-1) devenir
-        # négligeable, y compris pour une persistance proche de 1.
         forecast_far = VOL.forecast_garch_volatility(fit, horizon=5000, annualize=False)
         long_run_vol = np.sqrt(fit.long_run_variance)
         assert abs(forecast_far[-1] - long_run_vol) / long_run_vol < 1e-3

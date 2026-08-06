@@ -1,14 +1,4 @@
-"""Exemple 3 : stress tests — scénarios historiques, hypothétique, corrélation, reverse.
-
-Rejoue les scénarios de crise historiques (2008, COVID, choc de taux 2022) et
-un scénario hypothétique multi-facteurs sur un portefeuille multi-actifs,
-applique un stress de corrélation (corrélations forcées à 1 en crise
-systémique) et calcule un reverse stress test (choc le plus plausible pour
-une perte cible de -15%).
-
-Exécution : ``python examples/03_stress_tests.py`` (aucune dépendance
-réseau, aucun argument requis).
-"""
+"""Stress tests — scénarios historiques, hypothétique, corrélation, reverse."""
 
 from __future__ import annotations
 
@@ -54,17 +44,11 @@ def main() -> None:
     print(f"Portefeuille : {weights}")
     print()
 
-    # -----------------------------------------------------------------
-    # 1) Scénarios historiques rejoués.
-    # -----------------------------------------------------------------
     hist_table = run_all_historical_scenarios(weights)
     print("Scénarios historiques rejoués (P&L en % de la valeur du portefeuille) :\n")
     print(hist_table.to_string(index=False, float_format=lambda x: f"{x:+.2%}"))
     print()
 
-    # -----------------------------------------------------------------
-    # 2) Scénario hypothétique paramétrique.
-    # -----------------------------------------------------------------
     hypo_shocks = HypotheticalShocks(
         equity_shock=-0.25, rate_shock_bp=150.0, credit_spread_shock_bp=120.0, fx_shock=0.08
     )
@@ -79,9 +63,6 @@ def main() -> None:
     print(f"  {'TOTAL':22s} {hypo_total:+.2%}")
     print()
 
-    # -----------------------------------------------------------------
-    # 3) Stress de corrélation (corrélations forcées à 1).
-    # -----------------------------------------------------------------
     corr_stress = stress_correlation_shock(PORTFOLIO_WEIGHTS, cov_daily, forced_correlation=1.0)
     vol_base_annual = corr_stress["vol_base"] * np.sqrt(252)
     vol_stress_annual = corr_stress["vol_stress"] * np.sqrt(252)
@@ -91,9 +72,6 @@ def main() -> None:
     print(f"  Hausse relative de la volatilité  : {corr_stress['increase_pct']:+.1f}%")
     print()
 
-    # -----------------------------------------------------------------
-    # 4) Reverse stress test.
-    # -----------------------------------------------------------------
     reverse = reverse_stress_test(PORTFOLIO_WEIGHTS, cov_daily, target_loss=TARGET_LOSS)
     print(f"Reverse stress test (perte cible {TARGET_LOSS:.0%}) :\n")
     print(f"  Convergence de l'optimisation : {reverse.converged}")
@@ -104,9 +82,6 @@ def main() -> None:
         print(f"    - {asset:20s} {shock:+.2%}")
     print()
 
-    # -----------------------------------------------------------------
-    # Graphique 1 : P&L par scénario, barres horizontales.
-    # -----------------------------------------------------------------
     scenario_names = list(hist_table["scenario"]) + ["Hypothétique (actions/taux/crédit/FX)"]
     scenario_pnls = list(hist_table["pnl_pct"]) + [hypo_total]
     order = np.argsort(scenario_pnls)
@@ -132,9 +107,6 @@ def main() -> None:
     plt.close(fig)
     print(f"Graphique sauvegardé : {out1}")
 
-    # -----------------------------------------------------------------
-    # Graphique 2 : waterfall de décomposition du scénario hypothétique.
-    # -----------------------------------------------------------------
     labels = list(hypo_pnl.keys()) + ["TOTAL"]
     values = list(hypo_pnl.values()) + [hypo_total]
     cum = 0.0
@@ -142,7 +114,7 @@ def main() -> None:
     for v in values[:-1]:
         starts.append(cum)
         cum += v
-    starts.append(0.0)  # la barre TOTAL part de zéro
+    starts.append(0.0)
 
     fig2, ax2 = plt.subplots(figsize=(9.5, 5))
     bar_colors = ["#C00000" if v < 0 else "#548235" for v in values[:-1]] + ["#1F4E78"]

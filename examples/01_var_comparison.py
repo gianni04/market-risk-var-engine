@@ -1,14 +1,4 @@
-"""Exemple 1 : comparaison des 4 méthodes de VaR sur un portefeuille multi-actifs.
-
-Génère des rendements synthétiques multi-actifs, construit un portefeuille
-diversifié, calcule la VaR/ES par les méthodes historique, historique
-pondérée (BRW), paramétrique gaussienne, Cornish-Fisher et Monte Carlo, puis
-trace la série de P&L du portefeuille avec la ligne de VaR et les jours de
-dépassement ("exceptions") marqués.
-
-Exécution : ``python examples/01_var_comparison.py`` (aucune dépendance
-réseau, aucun argument requis).
-"""
+"""Comparaison des 4 méthodes de VaR sur un portefeuille multi-actifs."""
 
 from __future__ import annotations
 
@@ -57,7 +47,6 @@ def main() -> None:
     print(summary.to_string(float_format=lambda x: f"{x:.4%}"))
     print()
 
-    # Vérification empirique du taux d'exceptions pour la VaR historique.
     var_hist = historical_var(portfolio_returns, CONFIDENCE)
     exceptions_mask = (-portfolio_returns) > var_hist
     n_exceptions = int(exceptions_mask.sum())
@@ -68,9 +57,6 @@ def main() -> None:
     )
     print()
 
-    # -----------------------------------------------------------------
-    # Graphique : rendements du portefeuille, ligne de VaR, exceptions.
-    # -----------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(11, 5.5))
     ax.plot(portfolio_returns.index, portfolio_returns.values, lw=0.6, color="#1F4E78", label="Rendement quotidien du portefeuille")
     ax.axhline(-var_hist, color="#C00000", lw=1.4, ls="--", label=f"VaR historique {CONFIDENCE:.0%} (-{var_hist:.2%})")
@@ -93,9 +79,6 @@ def main() -> None:
     plt.close(fig)
     print(f"Graphique sauvegardé : {out1}")
 
-    # -----------------------------------------------------------------
-    # Graphique : comparaison des VaR par méthode (barres).
-    # -----------------------------------------------------------------
     methods = summary.index.tolist()
     vars_pct = (summary["VaR"] * 100).values
     fig2, ax2 = plt.subplots(figsize=(9, 5))

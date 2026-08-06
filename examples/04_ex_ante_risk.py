@@ -1,16 +1,4 @@
-"""Exemple 4 : risque ex-ante relatif — tracking error, beta, ratio d'information, contributions.
-
-Compare un portefeuille multi-actifs à un benchmark de référence : tracking
-error ex-ante (covariance estimée sur une fenêtre passée) confrontée à la
-tracking error ex-post (réalisée sur la fenêtre suivante, hors échantillon
-de calibration — pas de tautologie), beta et beta ajusté de Blume, ratio
-d'information, décomposition marginal/component VaR par position
-(allocation d'Euler) et décomposition du risque actif en risque factoriel
-(facteur de marché unique) vs risque spécifique.
-
-Exécution : ``python examples/04_ex_ante_risk.py`` (aucune dépendance
-réseau, aucun argument requis).
-"""
+"""Risque ex-ante relatif — tracking error, beta, ratio d'information, contributions."""
 
 from __future__ import annotations
 
@@ -45,8 +33,8 @@ ASSET_NAMES = ["Actions_EU", "Actions_US", "Obligations_Souv", "Credit_IG", "Or"
 PORTFOLIO_WEIGHTS = np.array([0.30, 0.30, 0.20, 0.15, 0.05])
 BENCHMARK_WEIGHTS = np.array([0.25, 0.25, 0.25, 0.15, 0.10])
 CONFIDENCE = 0.99
-TE_WINDOW = 250  # fenêtre de calibration / de réalisation (~1 an réglementaire)
-TE_STEP = 21  # pas de recalibration (~mensuel) pour la série glissante
+TE_WINDOW = 250
+TE_STEP = 21
 
 
 def format_weights(weights: np.ndarray) -> pd.Series:
@@ -69,15 +57,6 @@ def main() -> None:
     print(format_weights(BENCHMARK_WEIGHTS).to_string())
     print()
 
-    # -----------------------------------------------------------------
-    # 1) Tracking error ex-ante (fenêtre passée) vs ex-post (fenêtre suivante).
-    #
-    # La covariance ex-ante est estimée sur les TE_WINDOW jours PRÉCÉDANT
-    # l'instant t ; la TE ex-post est réalisée sur les TE_WINDOW jours
-    # SUIVANT t. Les deux quantités portent donc sur des périodes disjointes
-    # : leur écart mesure l'erreur de prévision du modèle de risque, et non
-    # une tautologie (ce que donnerait un calcul sur le même échantillon).
-    # -----------------------------------------------------------------
     calib = returns.iloc[0:TE_WINDOW]
     realized = returns.iloc[TE_WINDOW : 2 * TE_WINDOW]
     cov_calib = sample_covariance(calib, annualize=False)
@@ -100,8 +79,6 @@ def main() -> None:
         print("  -> prévision et réalisation restent proches sur cette période.")
     print()
 
-    # Série glissante : TE ex-ante prévue vs TE ex-post réalisée, recalibrée
-    # tous les TE_STEP jours, sur l'ensemble de l'échantillon disponible.
     dates, te_ante_series, te_post_series = [], [], []
     for i in range(TE_WINDOW, len(returns) - TE_WINDOW + 1, TE_STEP):
         cov_i = sample_covariance(returns.iloc[i - TE_WINDOW : i], annualize=False)
@@ -120,9 +97,6 @@ def main() -> None:
     )
     print()
 
-    # -----------------------------------------------------------------
-    # 2) Beta, beta de Blume, ratio d'information (calculés sur tout l'échantillon).
-    # -----------------------------------------------------------------
     raw_beta = beta(portfolio_returns, benchmark_returns)
     adj_beta = beta_blume_adjusted(raw_beta)
     ir = information_ratio(portfolio_returns, benchmark_returns)
@@ -132,15 +106,6 @@ def main() -> None:
     print(f"  Ratio d'information (annualisé): {ir:.3f}")
     print()
 
-    # -----------------------------------------------------------------
-    # 3) Décomposition marginal / component VaR (Euler).
-    #
-    # La VaR à 1 jour est la mesure de référence (convention de place).
-    # Une version "annualisée" par la règle racine du temps est indiquée à
-    # titre illustratif uniquement : elle suppose des rendements i.i.d. sans
-    # autocorrélation ni changement de régime de volatilité sur un horizon
-    # d'un an, hypothèse fragile en pratique (cf. section Limites du README).
-    # -----------------------------------------------------------------
     cov_full = sample_covariance(returns, annualize=False)
     contrib = component_var(PORTFOLIO_WEIGHTS, cov_full, confidence=CONFIDENCE, annualize=False)
     contrib_table = pd.DataFrame(
@@ -165,9 +130,6 @@ def main() -> None:
     )
     print()
 
-    # -----------------------------------------------------------------
-    # 4) Décomposition facteur / spécifique du risque actif.
-    # -----------------------------------------------------------------
     active_weights = PORTFOLIO_WEIGHTS - BENCHMARK_WEIGHTS
     factor_returns = benchmark_returns.to_numpy()
     factor_var_daily = float(np.var(factor_returns, ddof=1))
@@ -188,9 +150,6 @@ def main() -> None:
     print(f"  Risque spécifique                   : {decomposition.specific_pct:.1%}")
     print()
 
-    # -----------------------------------------------------------------
-    # Graphique 1 : contributions au risque par position (barres).
-    # -----------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(9, 5))
     colors = ["#C00000" if c < 0 else "#1F4E78" for c in contrib.pct_contribution]
     ax.bar(ASSET_NAMES, contrib.pct_contribution * 100, color=colors)
@@ -206,9 +165,6 @@ def main() -> None:
     plt.close(fig)
     print(f"Graphique sauvegardé : {out1}")
 
-    # -----------------------------------------------------------------
-    # Graphique 2 : décomposition facteur vs spécifique (camembert).
-    # -----------------------------------------------------------------
     fig2, ax2 = plt.subplots(figsize=(6.5, 5.5))
     ax2.pie(
         [decomposition.factor_pct, decomposition.specific_pct],
@@ -225,9 +181,6 @@ def main() -> None:
     plt.close(fig2)
     print(f"Graphique sauvegardé : {out2}")
 
-    # -----------------------------------------------------------------
-    # Graphique 3 : TE ex-ante prévue vs TE ex-post réalisée (série glissante).
-    # -----------------------------------------------------------------
     fig3, ax3 = plt.subplots(figsize=(10.5, 5.5))
     ax3.plot(te_series_df["date"], te_series_df["te_ante"] * 100, color="#1F4E78", lw=1.6, label="TE ex-ante prévue (fenêtre passée)")
     ax3.plot(te_series_df["date"], te_series_df["te_post"] * 100, color="#C00000", lw=1.6, label="TE ex-post réalisée (fenêtre suivante)")

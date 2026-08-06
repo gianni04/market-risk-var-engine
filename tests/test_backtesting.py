@@ -24,8 +24,6 @@ class TestKupiecPOF:
         assert result.p_value > 0.05
 
     def test_rejects_deliberately_miscalibrated_model(self) -> None:
-        # VaR délibérément trop faible (sous-estime le risque) -> bien plus
-        # d'exceptions que le taux attendu -> Kupiec doit rejeter H0.
         rng = np.random.default_rng(0)
         sigma = 0.01
         confidence = 0.99
@@ -40,9 +38,6 @@ class TestKupiecPOF:
         assert result.p_value < 0.05
 
     def test_rejects_overly_conservative_model(self) -> None:
-        # VaR délibérément beaucoup trop élevée -> quasiment aucune
-        # exception -> le taux observé s'écarte aussi du taux attendu et
-        # Kupiec doit rejeter (mauvaise couverture, même "trop prudente").
         rng = np.random.default_rng(1)
         sigma = 0.01
         confidence = 0.99
@@ -59,14 +54,12 @@ class TestKupiecPOF:
 class TestChristoffersenIndependence:
     def test_detects_clustered_exceptions(self) -> None:
         exceptions = np.zeros(250, dtype=bool)
-        exceptions[100:112] = True  # 12 exceptions consécutives = fort clustering
+        exceptions[100:112] = True
         result = BT.christoffersen_independence_test(exceptions, significance_level=0.05)
         assert result.reject_h0 is True
 
     def test_does_not_reject_scattered_exceptions(self) -> None:
         rng = np.random.default_rng(42)
-        # Exceptions dispersées aléatoirement au taux attendu (1%) sur un
-        # grand échantillon : ne doit pas rejeter l'indépendance.
         exceptions = rng.random(5000) < 0.01
         result = BT.christoffersen_independence_test(exceptions, significance_level=0.01)
         assert result.reject_h0 is False
@@ -103,7 +96,7 @@ class TestBerkowitz:
         rng = np.random.default_rng(6)
         n = 2000
         true_sigma = 0.02
-        forecast_sigma = np.full(n, 0.005)  # vol prévue trop faible
+        forecast_sigma = np.full(n, 0.005)
         mu = np.zeros(n)
         r = rng.normal(0, true_sigma, n)
         result = BT.berkowitz_test(r, mu, forecast_sigma, significance_level=0.05)

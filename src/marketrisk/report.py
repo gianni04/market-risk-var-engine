@@ -1,10 +1,4 @@
-"""Construction du rapport de risque quotidien et export Excel formaté.
-
-Agrège les briques du package (VaR multi-méthodes, backtesting, tracking
-error/beta, contribution au risque) dans une structure de synthèse unique,
-exportable en classeur Excel via `xlsxwriter` avec mise en forme (couleurs
-de verdict, formats %, gel des volets).
-"""
+"""Construction du rapport de risque quotidien et export Excel formaté."""
 
 from __future__ import annotations
 
@@ -17,32 +11,7 @@ import pandas as pd
 
 @dataclass
 class DailyRiskReport:
-    """Rapport de risque quotidien consolidé.
-
-    Attributes
-    ----------
-    report_date : str
-        Date du rapport.
-    var_summary : pd.DataFrame
-        VaR/ES par méthode (colonnes ``VaR``, ``ES``).
-    monte_carlo_var : float
-        VaR Monte Carlo portefeuille (méthode multivariée dédiée).
-    monte_carlo_es : float
-        ES Monte Carlo portefeuille.
-    tracking_error_ex_ante : float
-        Tracking error ex-ante annualisée.
-    beta : float
-        Beta du portefeuille vs. benchmark.
-    beta_blume : float
-        Beta ajusté selon Blume (1975).
-    information_ratio : float
-        Ratio d'information.
-    top_contributors : pd.DataFrame
-        Top contributeurs au risque (VaR de composante), triés décroissant.
-    backtest_summary : pd.DataFrame
-        Résumé des tests de backtesting (Kupiec, Christoffersen, Traffic
-        Light).
-    """
+    """Rapport de risque quotidien consolidé."""
 
     report_date: str
     var_summary: pd.DataFrame
@@ -69,37 +38,7 @@ def build_daily_risk_report(
     asset_names: list[str],
     backtest_results: dict,
 ) -> DailyRiskReport:
-    """Assemble un rapport de risque quotidien à partir des sorties du package.
-
-    Parameters
-    ----------
-    report_date : str
-        Date du rapport (ex. ``"2026-08-01"``).
-    var_summary : pd.DataFrame
-        Sortie de :func:`marketrisk.var.var_es_summary`.
-    monte_carlo_var, monte_carlo_es : float
-        Sorties de :func:`marketrisk.var.monte_carlo_var`.
-    tracking_error_ex_ante : float
-        Sortie de :func:`marketrisk.exante.tracking_error_ex_ante`.
-    beta, beta_blume : float
-        Sorties de :func:`marketrisk.exante.beta` /
-        :func:`marketrisk.exante.beta_blume_adjusted`.
-    information_ratio : float
-        Sortie de :func:`marketrisk.exante.information_ratio`.
-    component_var : np.ndarray
-        VaR de composante par position, sortie de
-        :func:`marketrisk.exante.component_var`.
-    asset_names : list of str
-        Noms des actifs correspondant à ``component_var``.
-    backtest_results : dict
-        Sortie de :func:`marketrisk.backtesting.backtest_var`.
-
-    Returns
-    -------
-    DailyRiskReport
-        Rapport consolidé, prêt pour export Excel via
-        :func:`export_excel_report`.
-    """
+    """Assemble un rapport de risque quotidien à partir des sorties du package."""
     contrib_df = pd.DataFrame(
         {"Actif": asset_names, "VaR_composante": component_var}
     ).sort_values("VaR_composante", ascending=False).reset_index(drop=True)
@@ -144,25 +83,7 @@ def build_daily_risk_report(
 
 
 def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
-    """Exporte un :class:`DailyRiskReport` en classeur Excel mis en forme.
-
-    Produit un fichier ``.xlsx`` à plusieurs onglets (Synthèse, VaR par
-    méthode, Contributeurs au risque, Backtesting), avec en-têtes en gras,
-    formats de pourcentage, gel des volets et mise en forme conditionnelle
-    du verdict de backtesting (rouge si le modèle est rejeté).
-
-    Parameters
-    ----------
-    report : DailyRiskReport
-        Rapport à exporter, cf. :func:`build_daily_risk_report`.
-    path : str or Path
-        Chemin du fichier Excel de sortie.
-
-    Returns
-    -------
-    Path
-        Chemin effectivement écrit.
-    """
+    """Exporte un :class:`DailyRiskReport` en classeur Excel mis en forme."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -177,7 +98,6 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
         reject_fmt = workbook.add_format({"bg_color": "#F8CBAD"})
         ok_fmt = workbook.add_format({"bg_color": "#C6EFCE"})
 
-        # --- Onglet Synthèse -------------------------------------------------
         summary_sheet = workbook.add_worksheet("Synthese")
         writer.sheets["Synthese"] = summary_sheet
         summary_sheet.write(0, 0, f"Rapport de risque de marché — {report.report_date}", title_fmt)
@@ -199,7 +119,6 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
         summary_sheet.set_column(1, 1, 16)
         summary_sheet.freeze_panes(3, 0)
 
-        # --- Onglet VaR par méthode -------------------------------------------
         report.var_summary.to_excel(writer, sheet_name="VaR_par_methode", startrow=1)
         var_sheet = writer.sheets["VaR_par_methode"]
         var_sheet.write(0, 0, "VaR et Expected Shortfall par méthode (niveau de confiance indiqué dans le script)", title_fmt)
@@ -209,7 +128,6 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
         var_sheet.set_column(1, 2, 14, pct_fmt)
         var_sheet.freeze_panes(3, 1)
 
-        # --- Onglet Contributeurs au risque -------------------------------
         report.top_contributors.to_excel(writer, sheet_name="Contributeurs_risque", index=False, startrow=1)
         contrib_sheet = writer.sheets["Contributeurs_risque"]
         contrib_sheet.write(0, 0, "Contribution au risque par position (allocation d'Euler)", title_fmt)
@@ -220,7 +138,6 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
         contrib_sheet.set_column(2, 2, 18)
         contrib_sheet.freeze_panes(3, 0)
 
-        # --- Onglet Backtesting -----------------------------------------------
         report.backtest_summary.to_excel(writer, sheet_name="Backtesting", index=False, startrow=1)
         bt_sheet = writer.sheets["Backtesting"]
         bt_sheet.write(0, 0, "Résultats des tests de backtesting réglementaire", title_fmt)
@@ -241,18 +158,7 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
 
 
 def report_to_dataframe(report: DailyRiskReport) -> pd.DataFrame:
-    """Convertit la synthèse du rapport en un DataFrame plat (pour affichage console/CSV).
-
-    Parameters
-    ----------
-    report : DailyRiskReport
-        Rapport à aplatir.
-
-    Returns
-    -------
-    pd.DataFrame
-        Une ligne, colonnes = indicateurs de synthèse.
-    """
+    """Convertit la synthèse du rapport en un DataFrame plat (pour affichage console/CSV)."""
     return pd.DataFrame(
         [
             {

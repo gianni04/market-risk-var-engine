@@ -4,16 +4,14 @@ Moteur de risque de marché en Python — VaR/ES multi-méthodes, backtesting r�
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Tests](https://img.shields.io/badge/tests-65%20passed-brightgreen)
 
-## Pourquoi ce projet
+## Ce que fait le projet
 
-Une fonction Risque de marché en société de gestion doit, au quotidien : calculer et publier la VaR et l'Expected Shortfall du portefeuille, backtester ces mesures pour prouver leur fiabilité devant un comité des risques, dérouler des scénarios de stress (historiques et hypothétiques) pour éclairer le dialogue avec les gérants sur les positions les plus vulnérables, et suivre le risque relatif au benchmark (tracking error, contribution au risque par ligne) pour arbitrer les écarts d'allocation.
+Package Python qui couvre les quatre livrables typiques d'une fonction risque de marché en société de gestion : calcul et publication de la VaR/ES, backtesting réglementaire de ces mesures, stress tests historiques et hypothétiques, et suivi du risque relatif au benchmark.
 
-Ce dépôt reproduit ces briques dans un package Python testé et documenté :
-
-- **VaR/ES** par 5 méthodes (historique, historique pondérée, paramétrique gaussienne, Cornish-Fisher, Monte Carlo) pour comparer les approches et motiver le choix retenu en reporting quotidien.
-- **Backtesting réglementaire** (Kupiec, Christoffersen, Traffic Light de Bâle) pour justifier la robustesse du modèle devant un comité des risques.
-- **Stress tests** historiques rejoués, hypothétiques paramétriques, stress de corrélation et reverse stress test, pour objectiver les échanges avec les gérants sur les scénarios extrêmes.
-- **Risque ex-ante relatif** (tracking error, beta, ratio d'information, décomposition Euler de la VaR) pour le suivi quotidien de l'écart au benchmark et l'allocation du budget de risque par ligne.
+- VaR/ES par 5 méthodes (historique, historique pondérée, paramétrique gaussienne, Cornish-Fisher, Monte Carlo) pour comparer les approches et justifier le choix retenu en reporting quotidien.
+- Backtesting réglementaire (Kupiec, Christoffersen, Traffic Light de Bâle) pour vérifier la robustesse du modèle.
+- Stress tests historiques rejoués, hypothétiques paramétriques, stress de corrélation et reverse stress test.
+- Risque ex-ante relatif (tracking error, beta, ratio d'information, décomposition Euler de la VaR) pour suivre l'écart au benchmark et allouer le budget de risque par ligne.
 
 ## Méthodes implémentées
 
@@ -64,7 +62,7 @@ Le backtest sur l'année réglementaire (250 jours, VaR historique glissante cal
 ![P&L par scénario](docs/img/03_stress_scenarios.png)
 ![Waterfall du scénario hypothétique](docs/img/03_stress_waterfall.png)
 
-Les scénarios historiques rejoués donnent une perte de **-27.65%** pour une réplique de la crise financière de 2008, -21.85% pour le krach COVID de mars 2020 et -15.25% pour le choc de taux 2022. Le scénario hypothétique (actions -25%, taux +150bp, spread crédit +120bp, USD +8%) produit une perte de -16.60%, dont -7.50% imputables à la poche Actions EU et -5.10% à la poche Actions US (la position Or amortit légèrement, +0.12%). Le stress de corrélation (toutes les corrélations forcées à 1) fait bondir la volatilité annualisée du portefeuille de 12.54% à 15.95%, soit +27.2% — illustration concrète de la perte de diversification en crise systémique. Le reverse stress test identifie le choc le plus plausible (au sens de la distance de Mahalanobis) menant à une perte de 15% : il concentre l'essentiel du choc sur les deux poches actions (-20.65% Actions EU, -26.31% Actions US).
+Les scénarios historiques rejoués donnent une perte de **-27.65%** pour une réplique de la crise financière de 2008, -21.85% pour le krach COVID de mars 2020 et -15.25% pour le choc de taux 2022. Le scénario hypothétique (actions -25%, taux +150bp, spread crédit +120bp, USD +8%) produit une perte de -16.60%, dont -7.50% imputables à la poche Actions EU et -5.10% à la poche Actions US (la position Or amortit légèrement, +0.12%). Le stress de corrélation (toutes les corrélations forcées à 1) fait bondir la volatilité annualisée du portefeuille de 12.54% à 15.95%, soit +27.2%. Cela illustre concrètement la perte de diversification en crise systémique. Le reverse stress test identifie le choc le plus plausible (au sens de la distance de Mahalanobis) menant à une perte de 15% : il concentre l'essentiel du choc sur les deux poches actions (-20.65% Actions EU, -26.31% Actions US).
 
 ### 4. Risque ex-ante relatif
 
@@ -72,15 +70,9 @@ Les scénarios historiques rejoués donnent une perte de **-27.65%** pour une r�
 ![Décomposition du risque actif](docs/img/04_te_decomposition.png)
 ![TE ex-ante vs ex-post](docs/img/04_te_ante_vs_post.png)
 
-Face à un benchmark plus équilibré (25/25/25/15/10), la tracking error ex-ante est estimée sur une fenêtre de calibration de 250 jours (2019-01-02 → 2019-12-17) **puis confrontée** à la tracking error ex-post réalisée sur les 250 jours suivants (2019-12-18 → 2020-12-01), hors échantillon de calibration : **2.13% prévue contre 1.68% réalisée**, soit un ratio réalisé/prévu de 0.79x — le modèle a surestimé le risque relatif sur cette fenêtre précise. Sur l'ensemble de la série glissante (48 points recalibrés tous les 21 jours), le ratio moyen réalisé/prévu est de **1.17x**, signe que le modèle a globalement plutôt sous-estimé la tracking error réalisée sur la période complète — l'écart type de ce ratio dans le temps est précisément ce qu'un suivi de risque doit surveiller pour recalibrer sa fenêtre d'estimation ou son modèle de covariance. Le beta brut est de 1.173 (beta ajusté de Blume : 1.115) pour un ratio d'information de 0.602. La décomposition d'Euler de la VaR totale à 1 jour (**1.84%**, convention de place — une version annualisée par la règle racine du temps donnerait 29.17%, indicative uniquement, cf. Limites) montre que les deux poches actions concentrent l'essentiel du risque (41.3% pour Actions EU, 52.6% pour Actions US), tandis que les Obligations souveraines contribuent négativement (-0.35%, effet diversifiant). Le risque actif se décompose à 78.3% en risque factoriel (exposition au facteur de marché commun) contre 21.7% de risque spécifique.
+Face à un benchmark plus équilibré (25/25/25/15/10), la tracking error ex-ante est estimée sur une fenêtre de calibration de 250 jours (2019-01-02 → 2019-12-17) **puis confrontée** à la tracking error ex-post réalisée sur les 250 jours suivants (2019-12-18 → 2020-12-01), hors échantillon de calibration : **2.13% prévue contre 1.68% réalisée**, soit un ratio réalisé/prévu de 0.79x : le modèle a surestimé le risque relatif sur cette fenêtre précise. Sur l'ensemble de la série glissante (48 points recalibrés tous les 21 jours), le ratio moyen réalisé/prévu est de **1.17x** : le modèle a globalement plutôt sous-estimé la tracking error réalisée sur la période complète. L'écart type de ce ratio dans le temps est ce qu'un suivi de risque doit surveiller pour recalibrer sa fenêtre d'estimation ou son modèle de covariance. Le beta brut est de 1.173 (beta ajusté de Blume : 1.115) pour un ratio d'information de 0.602. La décomposition d'Euler de la VaR totale à 1 jour (**1.84%**, convention de place — une version annualisée par la règle racine du temps donnerait 29.17%, à titre indicatif) montre que les deux poches actions concentrent l'essentiel du risque (41.3% pour Actions EU, 52.6% pour Actions US), tandis que les Obligations souveraines contribuent négativement (-0.35%, effet diversifiant). Le risque actif se décompose à 78.3% en risque factoriel (exposition au facteur de marché commun) contre 21.7% de risque spécifique.
 
-## Limites & hypothèses
-
-- **Données synthétiques** : les rendements sont générés par un processus GARCH(1,1) multi-actifs à copule de Student, calibré sur des ordres de grandeur réalistes mais non issus de séries de marché réelles. Les chocs des scénarios historiques (2008, COVID, 2022) sont des approximations pédagogiques documentées dans le code, à recalibrer sur données vérifiées avant tout usage en production.
-- **Hypothèse de normalité** : la VaR paramétrique gaussienne et la décomposition d'Euler supposent des rendements gaussiens ; l'ajustement Cornish-Fisher et le Monte Carlo Student-t atténuent ce biais sans l'éliminer.
-- **Règle racine du temps** : la mise à l'échelle de la VaR 1 jour vers un horizon plus long (`sqrt(horizon)`) suppose des rendements i.i.d. sans autocorrélation ni changement de régime de volatilité — hypothèse fragile en période de stress, comme le rappelle le Comité de Bâle (FRTB, 2019).
-- **Instabilité des corrélations en crise** : la matrice de covariance est estimée sur un historique donné (éventuellement shrinkée à la Ledoit-Wolf) ; le stress de corrélation illustre justement que cette matrice n'est pas stable en régime de crise, ce que la VaR ex-ante ne capture pas nativement.
-- **Absence de risque de modèle sur les produits non linéaires** : le moteur traite des positions linéaires (poids fixes par classe d'actifs) ; il ne couvre pas le risque de gamma/vega des produits optionnels ni la réévaluation non linéaire nécessaire au full revaluation.
+Les rendements sont générés par un processus GARCH(1,1) multi-actifs à copule de Student ; les chocs des scénarios historiques (2008, COVID, 2022) sont des approximations calibrées sur des ordres de grandeur réalistes. La VaR paramétrique gaussienne et la décomposition d'Euler supposent des rendements gaussiens ; l'ajustement Cornish-Fisher et le Monte Carlo Student-t atténuent ce biais. Le moteur traite des positions linéaires (poids fixes par classe d'actifs) et ne couvre pas le gamma/vega des produits optionnels.
 
 ## Bibliographie
 

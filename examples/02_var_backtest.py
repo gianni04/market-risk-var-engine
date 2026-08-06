@@ -1,13 +1,4 @@
-"""Exemple 2 : backtest réglementaire de la VaR sur 250 jours.
-
-Calibre une VaR historique glissante (fenêtre de 500 jours, recalculée
-chaque jour) sur un portefeuille multi-actifs, puis backteste les 250
-derniers jours (un an réglementaire) avec les tests de Kupiec, de
-Christoffersen (indépendance + couverture conditionnelle jointe) et le
-Traffic Light de Bâle.
-
-Exécution : ``python examples/02_var_backtest.py``
-"""
+"""Backtest réglementaire de la VaR sur 250 jours."""
 
 from __future__ import annotations
 
@@ -37,12 +28,7 @@ PORTFOLIO_WEIGHTS = np.array([0.30, 0.30, 0.20, 0.15, 0.05])
 
 
 def rolling_historical_var(portfolio_returns: pd.Series, window: int, confidence: float) -> pd.Series:
-    """VaR historique glissante : recalibrée chaque jour sur les ``window`` jours précédents.
-
-    Reproduit la pratique de backtesting réglementaire : la VaR du jour t
-    n'utilise que l'information disponible jusqu'à t-1 (pas de fuite de
-    données du futur).
-    """
+    """VaR historique glissante : recalibrée chaque jour sur les ``window`` jours précédents."""
     var_series = pd.Series(index=portfolio_returns.index, dtype=float)
     for i in range(window, len(portfolio_returns)):
         past = portfolio_returns.iloc[i - window : i]
@@ -96,9 +82,6 @@ def main() -> None:
     )
     print()
 
-    # -----------------------------------------------------------------
-    # Graphique : rendements du backtest, VaR glissante, exceptions.
-    # -----------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(11, 5.5))
     ax.plot(backtest_returns.index, backtest_returns.values, lw=0.7, color="#1F4E78", label="Rendement quotidien réalisé")
     ax.plot(backtest_var_series.index, -backtest_var_series.values, color="#C00000", lw=1.3, label=f"-VaR historique glissante ({CONFIDENCE:.0%})")
