@@ -4,6 +4,8 @@ Python package for the usual market risk reports of an asset manager: VaR and
 Expected Shortfall with five methods, VaR backtesting, stress tests and
 ex-ante tracking error.
 
+A short note with the method and results: [note/market-risk-var-engine.pdf](note/market-risk-var-engine.pdf).
+
 ![Python](https://img.shields.io/badge/Python-3.11-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Tests](https://img.shields.io/badge/tests-65%20passed-brightgreen)
 
 **Data:** the examples run on synthetic returns (multi-asset GARCH(1,1) with a
