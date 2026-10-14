@@ -100,7 +100,7 @@ def export_excel_report(report: DailyRiskReport, path: str | Path) -> Path:
 
         summary_sheet = workbook.add_worksheet("Synthese")
         writer.sheets["Synthese"] = summary_sheet
-        summary_sheet.write(0, 0, f"Rapport de risque de marché — {report.report_date}", title_fmt)
+        summary_sheet.write(0, 0, f"Rapport de risque de marché, {report.report_date}", title_fmt)
         summary_rows = [
             ("VaR Monte Carlo (portefeuille)", report.monte_carlo_var),
             ("ES Monte Carlo (portefeuille)", report.monte_carlo_es),

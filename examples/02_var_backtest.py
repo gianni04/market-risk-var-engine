@@ -46,9 +46,7 @@ def main() -> None:
     backtest_returns = portfolio_returns.iloc[-BACKTEST_WINDOW:]
     backtest_var_series = var_series.iloc[-BACKTEST_WINDOW:]
 
-    print("=" * 78)
-    print("EXEMPLE 2 — Backtest réglementaire de la VaR (250 jours)")
-    print("=" * 78)
+    print("Exemple 2 : backtest réglementaire de la VaR (250 jours)")
     print(f"Fenêtre de calibration : {CALIBRATION_WINDOW} jours glissants")
     print(f"Fenêtre de backtest    : {BACKTEST_WINDOW} jours (1 an réglementaire)")
     print(f"Niveau de confiance    : {CONFIDENCE:.0%}")
@@ -95,7 +93,7 @@ def main() -> None:
         marker="x",
         label=f"Exceptions ({n_exceptions})",
     )
-    ax.set_title(f"Backtest VaR {CONFIDENCE:.0%} sur {BACKTEST_WINDOW} jours — zone Bâle : {tl.zone}")
+    ax.set_title(f"Backtest VaR {CONFIDENCE:.0%} sur {BACKTEST_WINDOW} jours, zone Bâle : {tl.zone}")
     ax.set_xlabel("Date")
     ax.set_ylabel("Rendement quotidien")
     ax.legend(loc="lower left", fontsize=9)

@@ -1,4 +1,4 @@
-"""Risque ex-ante relatif — tracking error, beta, ratio d'information, contributions."""
+"""Risque ex-ante relatif : tracking error, beta, ratio d'information, contributions."""
 
 from __future__ import annotations
 
@@ -48,9 +48,7 @@ def main() -> None:
     portfolio_returns = pd.Series(returns.to_numpy() @ PORTFOLIO_WEIGHTS, index=returns.index, name="portefeuille")
     benchmark_returns = pd.Series(returns.to_numpy() @ BENCHMARK_WEIGHTS, index=returns.index, name="benchmark")
 
-    print("=" * 78)
-    print("EXEMPLE 4 — Risque ex-ante relatif (Tracking Error, beta, contributions)")
-    print("=" * 78)
+    print("Exemple 4 : risque ex-ante relatif (Tracking Error, beta, contributions)")
     print("Portefeuille :")
     print(format_weights(PORTFOLIO_WEIGHTS).to_string())
     print("\nBenchmark :")
@@ -125,7 +123,7 @@ def main() -> None:
     print(contrib_table.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
     print(
         f"\n  Pour mémoire, VaR annualisée par la règle racine du temps "
-        f"(VaR_1j x sqrt(252), hypothèse i.i.d. — indicative uniquement) : "
+        f"(VaR_1j x sqrt(252), hypothèse i.i.d., indicatif seulement) : "
         f"{var_annualized_illustrative:.2%}"
     )
     print()
@@ -174,7 +172,7 @@ def main() -> None:
         startangle=90,
         wedgeprops={"edgecolor": "white", "linewidth": 1},
     )
-    ax2.set_title("Décomposition du risque actif (Tracking Error) — facteur vs spécifique")
+    ax2.set_title("Décomposition du risque actif (Tracking Error) : facteur vs spécifique")
     fig2.tight_layout()
     out2 = IMG_DIR / "04_te_decomposition.png"
     fig2.savefig(out2, dpi=130)

@@ -1,4 +1,4 @@
-"""Stress tests — scénarios historiques, hypothétique, corrélation, reverse."""
+"""Stress tests : scénarios historiques, hypothétique, corrélation, reverse."""
 
 from __future__ import annotations
 
@@ -38,9 +38,7 @@ def main() -> None:
     returns = generate_synthetic_returns(n_days=1500, seed=42)
     cov_daily = sample_covariance(returns, annualize=False)
 
-    print("=" * 78)
-    print("EXEMPLE 3 — Stress tests (historiques, hypothétique, corrélation, reverse)")
-    print("=" * 78)
+    print("Exemple 3 : stress tests (historiques, hypothétique, corrélation, reverse)")
     print(f"Portefeuille : {weights}")
     print()
 
@@ -123,7 +121,7 @@ def main() -> None:
         top = (starts[i] + v) * 100
         ax2.text(i, top + (0.15 if v >= 0 else -0.35), f"{v:+.2%}", ha="center", fontsize=8)
     ax2.axhline(0, color="black", lw=0.8)
-    ax2.set_title("Décomposition du P&L — scénario hypothétique (waterfall par actif)")
+    ax2.set_title("Décomposition du P&L, scénario hypothétique (waterfall par actif)")
     ax2.set_ylabel("Contribution au P&L (%)")
     ax2.set_xticks(range(len(labels)))
     ax2.set_xticklabels(labels, rotation=20, ha="right", fontsize=8)

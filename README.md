@@ -46,7 +46,7 @@ credit, 5% gold. 1,500 days.
 | Monte Carlo Student-t | 2.00% | 2.52% |
 
 Cornish-Fisher gives the highest numbers because it adjusts for skewness and
-fat tails; the normal model gives the lowest ES.
+fat tails. The normal model gives the lowest ES.
 
 ![VaR methods](docs/img/01_var_methodes_comparaison.png)
 
@@ -65,12 +65,15 @@ Equities make up 94% of the one-day VaR (Euler decomposition).
 
 ## Limitations
 
-- Synthetic data; the historical scenarios are approximations of real crises.
+- Synthetic data. The historical scenarios are approximations of real crises.
 - Linear positions only (no option gamma or vega).
 - The parametric VaR and the Euler decomposition assume normal returns.
 
 ## References
 
-Jorion, *Value at Risk* (2007); Kupiec (1995); Christoffersen (1998); Basel
-Committee, *Supervisory framework for backtesting* (1996); Ledoit and Wolf
-(2004); Boudoukh, Richardson and Whitelaw (1998).
+- Jorion, *Value at Risk* (2007)
+- Kupiec (1995)
+- Christoffersen (1998)
+- Basel Committee, *Supervisory framework for backtesting* (1996)
+- Ledoit and Wolf (2004)
+- Boudoukh, Richardson and Whitelaw (1998)

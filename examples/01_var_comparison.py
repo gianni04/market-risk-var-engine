@@ -28,9 +28,7 @@ def main() -> None:
     returns = generate_synthetic_returns(n_days=1500, seed=42)
     portfolio_returns = pd.Series(returns.to_numpy() @ PORTFOLIO_WEIGHTS, index=returns.index, name="portefeuille")
 
-    print("=" * 78)
-    print("EXEMPLE 1 — Comparaison des méthodes de VaR sur un portefeuille multi-actifs")
-    print("=" * 78)
+    print("Exemple 1 : comparaison des méthodes de VaR sur un portefeuille multi-actifs")
     print(f"Actifs : {list(returns.columns)}")
     print(f"Poids  : {PORTFOLIO_WEIGHTS.tolist()}")
     print(f"Historique : {returns.index[0].date()} -> {returns.index[-1].date()} ({len(returns)} jours)")
@@ -68,7 +66,7 @@ def main() -> None:
         zorder=5,
         label=f"Exceptions ({n_exceptions})",
     )
-    ax.set_title("Rendements du portefeuille et VaR historique à 99% — dépassements marqués")
+    ax.set_title("Rendements du portefeuille et VaR historique à 99%, dépassements marqués")
     ax.set_xlabel("Date")
     ax.set_ylabel("Rendement quotidien")
     ax.legend(loc="lower left", fontsize=9)
@@ -86,7 +84,7 @@ def main() -> None:
     ax2.bar(methods, vars_pct, color=colors[: len(methods)])
     for i, v in enumerate(vars_pct):
         ax2.text(i, v + 0.03, f"{v:.2f}%", ha="center", fontsize=9)
-    ax2.set_title(f"VaR à {CONFIDENCE:.0%} par méthode — portefeuille multi-actifs")
+    ax2.set_title(f"VaR à {CONFIDENCE:.0%} par méthode, portefeuille multi-actifs")
     ax2.set_ylabel("VaR (% de la valeur du portefeuille)")
     ax2.set_xticks(range(len(methods)))
     ax2.set_xticklabels(methods, rotation=20, ha="right", fontsize=8)
