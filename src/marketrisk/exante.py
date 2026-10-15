@@ -49,7 +49,7 @@ def beta(
 
 
 def beta_blume_adjusted(raw_beta: float) -> float:
-    """Beta ajusté selon la règle empirique de Blume (1975)."""
+    """Beta ajusté à la Blume (Blume, 1975) : règle arrondie 1/3 + 2/3 x beta brut."""
     return (1.0 / 3.0) * 1.0 + (2.0 / 3.0) * raw_beta
 
 

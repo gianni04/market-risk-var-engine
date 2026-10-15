@@ -100,7 +100,7 @@ def main() -> None:
     ir = information_ratio(portfolio_returns, benchmark_returns)
     print("Beta et ratio d'information (échantillon complet) :\n")
     print(f"  Beta brut (régression MCO)     : {raw_beta:.3f}")
-    print(f"  Beta ajusté (Blume, 1975)      : {adj_beta:.3f}")
+    print(f"  Beta ajusté (type Blume, 1975) : {adj_beta:.3f}")
     print(f"  Ratio d'information (annualisé): {ir:.3f}")
     print()
 
