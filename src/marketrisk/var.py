@@ -215,6 +215,7 @@ def time_scaling_diagnostic(
 def var_es_summary(
     returns: pd.Series | np.ndarray,
     confidence: float = 0.99,
+    # 0.94 : facteur de décroissance quotidien de RiskMetrics (J.P. Morgan/Reuters, 1996)
     ewma_decay: float = 0.94,
 ) -> pd.DataFrame:
     """Calcule VaR et ES par les quatre méthodes univariées sur une série."""
